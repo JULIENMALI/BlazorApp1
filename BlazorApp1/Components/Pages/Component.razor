@@ -1,0 +1,106 @@
+﻿ @page "/test"
+<h1 style="display: flex;justify-content: center; ">
+    SCENE
+</h1>
+
+
+<!-- Tableau GOLD : 5 lignes x 12 colonnes -->
+<div class=" table-wrapper">
+
+    <button style="width: 150px; height: 500px;" onclick="@Reserver">loge VIP</button>
+
+    <table >
+      
+       
+        @for (int row = 0; row < 5; row++)
+        {
+            <tr>
+              
+                @for (int col = 0; col < maxGold; col++)
+                {
+                    <td>
+                        <button style=" width: 70px;
+                                height:40px; margin: 5px;" onclick="@Reserver">
+                            Gold
+                        </button>
+                    </td>
+                }
+              
+            </tr>
+        }
+      
+    </table>
+    <button style="width:150px; height:  500px;" onclick="@Reserver">loge VIP</button>
+</div>
+
+<br />
+
+<!-- Tableau NORMAL : 15 lignes x 20 colonnes -->
+<div class =" table-wrapper">
+    <button style="width:150px; height:  500px;" onclick="@Reserver">loge VIP</button>
+
+    <table border="1">
+    
+        @for (int row = 0; row < 15; row++)
+        {
+            <tr>
+
+                @for (int col = 0; col < max; col++)
+                {
+                        <td>
+                            <button style="width: 60px; height: 30px; margin: 1px" onclick="@Reserver">Normal</button>
+                        </td>
+                }
+                
+            </tr>
+        }
+        
+    </table>
+    <button style="width:150px; height:  500px;" onclick="@Reserver">loge VIP</button>
+</div>
+
+
+<div class=" table-wrapper">
+
+    <table>
+                @for (int col = 0; col < 5; col++)
+                {
+                    <td>
+                        <button style="width: 500px; height: 150px;" onclick="@Reserver">loge VIP</button>
+                    </td>
+                }
+
+    </table>
+</div>
+@code {
+
+	int maxGold = 28;
+	int max = 36;
+
+	void Reserver()
+	{
+		
+	}
+
+}
+
+
+
+<style>
+
+    .table-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    table {
+        border-collapse: collapse;
+        margin: 10px;
+    }
+
+   
+
+ 
+
+</style>
