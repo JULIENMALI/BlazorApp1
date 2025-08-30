@@ -4,5 +4,5 @@ public class Equipe
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public List<Player> Joueurs { get; set; } = new List<Player>();
+    public List<Player> Joueurs { get; set; }=new List<Player>();
 }
