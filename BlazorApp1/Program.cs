@@ -1,4 +1,5 @@
 using BlazorApp1.Components;
+using Blazored.LocalStorage;
 
 namespace BlazorApp1
 {
@@ -11,8 +12,10 @@ namespace BlazorApp1
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+            builder.Services.AddBlazoredLocalStorage();
 
             var app = builder.Build();
+           
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

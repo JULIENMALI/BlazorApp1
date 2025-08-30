@@ -1,0 +1,39 @@
+﻿@page "/registration"
+@page "/inscription"
+@rendermode InteractiveServer
+
+<h3>Inscription Abonné</h3>
+
+<input @bind="Nom" placeholder="Nom" />
+<input @bind="Prenom" placeholder="Prénom" />
+<input type="number" @bind="Age" placeholder="Âge" />
+<input @bind="Email" placeholder="Email" />
+<input @bind="Etat" placeholder="État (Actif/Inactif)" />
+
+<button @onclick="Inscrire">S'inscrire</button>
+
+@if (Message != null)
+{
+    <p>@Message</p>
+}
+
+@code {
+    string Nom, Prenom, Email, Etat, Message;
+    int Age;
+
+    void Inscrire()
+    {
+        var abonne = new Subscriber.Builder()
+            .SetId(DataBase.Instance.Abonnes.Count + 1)
+            .SetName(Nom)
+            .SetFirstName(Prenom)
+            .SetAge(Age)
+            .SetEmail(Email)
+            .SetEtat(Etat)
+            .Build();
+
+        DataBase.Instance.Abonnes.Add(abonne);
+
+        Message = $"Bienvenue {abonne.FirstName}, ton ID est {abonne.Id}.";
+    }
+}

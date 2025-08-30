@@ -1,0 +1,171 @@
+﻿@page "/match"
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+
+<h3>Réservation de Place pour un Match</h3>
+
+@if (DataBase.Instance.Matches.Count == 0)
+{
+    <p>Aucun match disponible.</p>
+}
+else
+{
+    <label>Sélectionnez un match :</label>
+    <select @bind="SelectedMatchId" class="form-control">
+        @foreach (var matchWithIndex in DataBase.Instance.Matches.Select((m, i) => new { Match = m, Index = i }))
+        {
+            <option value="@matchWithIndex.Index">
+                @matchWithIndex.Match.Equipe1.Name vs @matchWithIndex.Match.Equipe2.Name (@matchWithIndex.Match.Date.ToShortDateString()) - Jeu : @matchWithIndex.Match.Jeu?.Name
+            </option>
+        }
+    </select>
+
+    <br />
+
+    <label>Type de place :</label>
+    <select @bind="SelectedType" class="form-control">
+        <option value="Normale">Normale - 30€</option>
+        <option value="Gold">Gold - 70€</option>
+        <option value="VIP">VIP - 120€</option>
+    </select>
+
+    <br />
+
+    <button class="btn btn-primary" @onclick="ReserverPlace">Réserver</button>
+
+    @if (!string.IsNullOrEmpty(Message))
+    {
+        <p>@Message</p>
+    }
+}
+
+<hr />
+
+<h4>Ajouter un nouveau match</h4>
+
+<EditForm Model="@newMatch" OnValidSubmit="AjouterMatch">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>Équipe 1 :</label>
+        <select @bind="newMatch.Equipe1Id" class="form-control" required>
+            <option value="0">-- Sélectionnez une équipe --</option>
+            @foreach (var equipe in AvailableEquipes)
+            {
+                <option value="@equipe.Id">@equipe.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Équipe 2 :</label>
+        <select @bind="newMatch.Equipe2Id" class="form-control" required>
+            <option value="0">-- Sélectionnez une équipe --</option>
+            @foreach (var equipe in AvailableEquipes)
+            {
+                <option value="@equipe.Id">@equipe.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Date du match :</label>
+        <InputDate @bind-Value="newMatch.Date" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label>Jeu :</label>
+        <select @bind="newMatch.SelectedGameId" class="form-control" required>
+            <option value="">-- Sélectionnez un jeu --</option>
+            @foreach (var game in AvailableGames)
+            {
+                <option value="@game.Id">@game.Name</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-success" style="margin-top:10px;">
+        Ajouter Match
+    </button>
+</EditForm>
+
+@code {
+    int SelectedMatchId = 0;
+    string SelectedType = "Normale";
+    string Message = "";
+
+    MatchInputModel newMatch = new MatchInputModel
+        {
+            Date = DateTime.Today
+        };
+
+    // Listes d’équipes et de jeux disponibles issues de ta base de données
+    List<Equipe> AvailableEquipes = DataBase.Instance.Equipes;
+    List<Game> AvailableGames = DataBase.Instance.Games;
+
+    void ReserverPlace()
+    {
+        if (!DataBase.Instance.Matches.Any())
+        {
+            Message = "Pas de match disponible pour réservation.";
+            return;
+        }
+
+        // Ne réserve rien ici !
+        Navigation.NavigateTo($"/test?type={SelectedType}");
+        }
+    
+
+    void AjouterMatch()
+    {
+        Message = string.Empty;
+
+        if (newMatch.Equipe1Id == 0 || newMatch.Equipe2Id == 0)
+        {
+            Message = "Veuillez sélectionner les deux équipes.";
+            return;
+        }
+        if (string.IsNullOrEmpty(newMatch.SelectedGameId))
+        {
+            Message = "Veuillez sélectionner un jeu.";
+            return;
+        }
+        if (newMatch.Equipe1Id == newMatch.Equipe2Id)
+        {
+            Message = "Les deux équipes doivent être différentes.";
+            return;
+        }
+
+        var equipe1 = AvailableEquipes.FirstOrDefault(e => e.Id == newMatch.Equipe1Id);
+        var equipe2 = AvailableEquipes.FirstOrDefault(e => e.Id == newMatch.Equipe2Id);
+        var game = AvailableGames.FirstOrDefault(g => g.Id.ToString() == newMatch.SelectedGameId);
+
+        if (equipe1 == null || equipe2 == null || game == null)
+        {
+            Message = "Sélection non valide.";
+            return;
+        }
+
+        Match match = new Match{ Equipe1 = equipe1,
+             Equipe2 = equipe2,
+             Date = newMatch.Date,
+                Jeu = game
+            };
+
+
+        DataBase.Instance.Matches.Add(match);
+
+        Message = $"Match ajouté : {equipe1.Name} vs {equipe2.Name} le {newMatch.Date.ToShortDateString()} (Jeu : {game.Name})";
+
+        newMatch = new MatchInputModel { Date = DateTime.Today };
+    }
+
+    public class MatchInputModel
+    {
+        public int Equipe1Id { get; set; }
+        public int Equipe2Id { get; set; }
+        public DateTime Date { get; set; }
+        public string SelectedGameId { get; set; } = string.Empty;
+    }
+}

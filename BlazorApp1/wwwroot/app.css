@@ -49,3 +49,41 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+
+
+.reserved {
+    background-color: darkred;
+    color: white;
+}
+
+.free {
+    background-color: lightgreen;
+    cursor: pointer;
+}
+
+.selected {
+    background-color: orange;
+    color: white;
+}
+
+.confirm {
+    background-color: darkblue;
+    color: white;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.table-wrapper {
+    margin: 10px;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td {
+    padding: 2px;
+}
