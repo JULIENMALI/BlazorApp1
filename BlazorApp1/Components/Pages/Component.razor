@@ -2,28 +2,22 @@
 @rendermode InteractiveServer
 @using BlazorApp1.Models
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
-
-<h1 style="text-align:center; margin-bottom:20px;">SCÈNE</h1>
-
 <div class="container">
-    <nav class="type-selector">
-        @foreach (var t in new[] { "Gold", "Normale", "VIP" })
-        {
-            <button class="type-button @(SelectedType == t ? "active" : "")" @onclick="() => ChangeType(t)">
-                @t
-            </button>
-        }
-    </nav>
 
-    <div class="seats-layout">
-        <div class="main-seats">
-            @foreach (var row in GroupSeats(SelectedType).Where(r => SelectedType != "VIP"))
+    <div class="hall">
+
+        <!-- Scène -->
+        <h1 style="text-align:center; margin-bottom:20px;">SCÈNE</h1>
+
+        <!-- Rangées Gold devant -->
+        <div class="gold-zone">
+            @foreach (var row in GroupSeats("Gold"))
             {
                 <div class="seat-row">
                     @foreach (var place in row)
                     {
                         <button class="seat-button @(place.Occupee ? "reserved" : SelectedPlace == place ? "selected" : "free")"
-                                style="width:@(SelectedType == "Gold" ? "70px" : "60px"); height:@(SelectedType == "Gold" ? "40px" : "30px");"
+                                style="width:70px; height:40px; margin:3px;"
                                 disabled="@place.Occupee"
                                 @onclick="() => SelectPlace(place)">
                             @place.Id
@@ -32,28 +26,47 @@
                 </div>
             }
         </div>
-        @if (SelectedType != "VIP")
-        {
-            <div class="vip-seats-side">
-                <h3>VIP</h3>
-                @foreach (var row in GroupSeats("VIP"))
-                {
-                    <div class="seat-row-vertical">
-                        @foreach (var place in row)
-                        {
-                            <button class="seat-button @(place.Occupee ? "reserved" : SelectedPlace == place ? "selected" : "free")"
-                                    style="width: 100px; height: 60px; margin: 3px;"
-                                    disabled="@place.Occupee"
-                                    @onclick="() => SelectPlace(place)">
-                                @place.Id
-                            </button>
-                        }
-                    </div>
-                }
-            </div>
-        }
+
+        <!-- Normales centre -->
+        <div class="normale-zone">
+            @foreach (var row in GroupSeats("Normale"))
+            {
+                <div class="seat-row">
+                    @foreach (var place in row)
+                    {
+                        <button class="seat-button @(place.Occupee ? "reserved" : SelectedPlace == place ? "selected" : "free")"
+                                style="width:60px; height:30px; margin:3px;"
+                                disabled="@place.Occupee"
+                                @onclick="() => SelectPlace(place)">
+                            @place.Id
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- VIP fond -->
+        <div class="back-vip">
+            @foreach (var row in GroupSeats("VIP"))
+            {
+                <div class="seat-row">
+                    @foreach (var place in row)
+                    {
+                        <button class="seat-button @(place.Occupee ? "reserved" : SelectedPlace == place ? "selected" : "free")"
+                                style="width:100px; height:60px; margin:3px;"
+                                disabled="@place.Occupee"
+                                @onclick="() => SelectPlace(place)">
+                            @place.Id
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+
     </div>
 </div>
+
+
 
 @if (SelectedPlace != null)
 {
@@ -276,4 +289,41 @@
         cursor: pointer;
         border: none;
     }
+
+
+    .hall {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .gold-zone, .back-vip {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .central-zone {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 40px;
+        width: 100%;
+    }
+
+    .normale-zone {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+    }
+
+    .vip-side {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
 </style>

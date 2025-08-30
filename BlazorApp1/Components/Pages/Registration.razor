@@ -2,38 +2,194 @@
 @page "/inscription"
 @rendermode InteractiveServer
 
-<h3>Inscription Abonné</h3>
+<div class="container">
+    <div class="form-hall">
+        <h3 style="text-align:center; margin-bottom:20px;">Inscription Abonné</h3>
 
-<input @bind="Nom" placeholder="Nom" />
-<input @bind="Prenom" placeholder="Prénom" />
-<input type="number" @bind="Age" placeholder="Âge" />
-<input @bind="Email" placeholder="Email" />
-<input @bind="Etat" placeholder="État (Actif/Inactif)" />
+        <div class="input-group">
+            <input class="input-field" @bind="Nom" placeholder="Nom" />
+        </div>
+        <div class="input-group">
+            <input class="input-field" @bind="Prenom" placeholder="Prénom" />
+        </div>
+        <div class="input-group">
+            <input class="input-field" type="number" @bind="Age" placeholder="Âge" />
+        </div>
+        <div class="input-group">
+            <input class="input-field" @bind="Email" placeholder="Email" />
+        </div>
 
-<button @onclick="Inscrire">S'inscrire</button>
+        <div class="input-group checkbox-group">
+            <label>
+                <input type="checkbox" @bind="IsActive" /> Actif
+            </label>
+        </div>
 
-@if (Message != null)
-{
-    <p>@Message</p>
-}
+        <div class="games-section">
+            <label>Choisis tes jeux :</label>
+            <div class="games-list">
+                @foreach (var game in AvailableGames)
+                {
+                    <label class="game-item">
+                        <input type="checkbox"
+                               checked="@SelectedGameIds.Contains(game.Id)"
+                               @onchange="e => OnGameCheckedChanged(e, game.Id)" />
+                        @game.Name
+                    </label>
+                }
+            </div>
+        </div>
+
+        <button class="submit-button" @onclick="Inscrire">S'inscrire</button>
+
+        @if (Message != null)
+        {
+            <p class="confirmation-message">@Message</p>
+        }
+    </div>
+</div>
 
 @code {
-    string Nom, Prenom, Email, Etat, Message;
+    string Nom, Prenom, Email, Message;
     int Age;
+    bool IsActive;
+    List<Game> AvailableGames = DataBase.Instance.Games;
+    List<int> SelectedGameIds = new();
+
+    void OnGameCheckedChanged(ChangeEventArgs e, int gameId)
+    {
+        bool isChecked = e.Value is bool b && b;
+        if (isChecked)
+        {
+            if (!SelectedGameIds.Contains(gameId))
+                SelectedGameIds.Add(gameId);
+        }
+        else
+        {
+            if (SelectedGameIds.Contains(gameId))
+                SelectedGameIds.Remove(gameId);
+        }
+    }
 
     void Inscrire()
     {
+        var jeuxChoisis = AvailableGames
+            .Where(g => SelectedGameIds.Contains(g.Id))
+            .ToList();
+
         var abonne = new Subscriber.Builder()
             .SetId(DataBase.Instance.Abonnes.Count + 1)
             .SetName(Nom)
             .SetFirstName(Prenom)
             .SetAge(Age)
             .SetEmail(Email)
-            .SetEtat(Etat)
+            .SetEtat(IsActive ? "Actif" : "Inactif")
+            .AddGames(jeuxChoisis)
             .Build();
 
         DataBase.Instance.Abonnes.Add(abonne);
 
-        Message = $"Bienvenue {abonne.FirstName}, ton ID est {abonne.Id}.";
+        var jeuxNoms = jeuxChoisis.Count > 0 ? string.Join(", ", jeuxChoisis.Select(j => j.Name)) : "aucun jeu";
+        Message = $"Bienvenue {abonne.FirstName}, ton ID est {abonne.Id}. Statut: {(IsActive ? "Actif" : "Inactif")}. Tu suis les jeux: {jeuxNoms}.";
     }
 }
+
+<style>
+    .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 80vh;
+        max-width: 900px;
+        margin: auto;
+        position: relative;
+        font-family: Arial, sans-serif;
+    }
+
+    .form-hall {
+        background-color: #f7f7f7;
+        border-radius: 10px;
+        padding: 30px 40px;
+        width: 100%;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        box-sizing: border-box;
+    }
+
+    .input-group {
+        margin-bottom: 15px;
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 16px;
+        border: 1.5px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease;
+    }
+
+        .input-field:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+    .checkbox-group {
+        margin-top: 10px;
+        font-size: 16px;
+        user-select: none;
+    }
+
+    .games-section {
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
+
+    .games-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px 25px;
+        margin-top: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+        padding-right: 5px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background-color: white;
+    }
+
+    .game-item {
+        flex-basis: 30%;
+        font-size: 15px;
+        user-select: none;
+        cursor: pointer;
+    }
+
+    .submit-button {
+        display: block;
+        margin: 20px auto 0 auto;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 13px 40px;
+        font-size: 18px;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        width: 100%;
+        max-width: 320px;
+    }
+
+        .submit-button:hover {
+            background-color: #0056b3;
+        }
+
+    .confirmation-message {
+        margin-top: 25px;
+        font-weight: bold;
+        font-size: 16px;
+        color: #0a7e07;
+        text-align: center;
+    }
+</style>
